@@ -60,7 +60,11 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 
 		private function getRandomNumber(isPositive:Boolean,allowDecimal:Boolean,range:Number):Number
 		{
-			return 1;
+			var number:Number = range * Math.random();
+			allowDecimal || (number = Math.round(number));
+			isPositive || (number *= -1);
+			
+			return number;
 		}
 
 		private function getRandomResult():Boolean
