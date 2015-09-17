@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" height="100%"
+		 verticalAlign="middle" horizontalAlign="left" 
+		 verticalGap="5" horizontalGap="50" 
+		 paddingLeft="20" paddingRight="20" paddingTop="20" paddingBottom="20" creationComplete="vbox1_creationCompleteHandler(event)"
+		 >
+	<mx:Script>
+		<![CDATA[
+			
+			public static const NEXT_TO_OUTPUT:String = "NEXT_TO_OUTPUT";
+			
+			import com.gamesys.iwi.webgame.tools.integration.AchievementsSpec;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			
+			private var _achievementsSpec:AchievementsSpec;
+			
+			[Bindable]
+			private var _achievements:ArrayCollection;
+
+			public function set achievementsArray(value:Array):void
+			{
+				_achievements = new ArrayCollection(value);
+				if(skinIDInput)
+				{
+					skinIDInput.text = _achievementsSpec.gameSkin;
+					skinIDInput.enabled = false;
+				}
+			}
+
+			protected function newItem(event:MouseEvent):void
+			{
+				var item:Object = AchievementsSpec.getNewAchievementItem();
+				
+				item["ACHIEVEMENT_TYPE"] = idInput.text;
+				item["GAMESKIN"] = skinIDInput.text;
+				item["NAME"] = titleInput.text;
+				item["DESCRIPTION"] = descriptionInput.text;
+			
+				_achievements ||= new ArrayCollection();
+				_achievements.addItem(item);
+				
+				_achievementsSpec.gameSkin ||= skinIDInput.text;
+				datagrid.invalidateProperties();
+				datagrid.validateNow();
+				
+				idInput.text = "";
+				titleInput.text = "";
+				descriptionInput.text = "";
+			}
+			
+			protected function vbox1_creationCompleteHandler(event:FlexEvent):void
+			{
+				_achievementsSpec = AchievementsSpec.getInstance();
+				if(_achievementsSpec.gameSkin)
+				{
+					skinIDInput.text = _achievementsSpec.gameSkin;
+					skinIDInput.enabled = false;
+				}
+			}
+			
+			protected function nextClickHandler(event:MouseEvent):void
+			{
+				_achievementsSpec.saveSpec(_achievements.toArray());
+				this.dispatchEvent(new Event(NEXT_TO_OUTPUT,true));
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Label text="Skin ID"/>
+	<mx:TextInput id="skinIDInput" width="200"/>
+	<mx:Label text="Achievement ID"/>
+	<mx:TextInput id="idInput" width="200"/>
+	<mx:Label text="Achievement title"/>
+	<mx:TextInput id="titleInput" width="200"/>
+	<mx:Label text="Achievement description"/>
+	<mx:TextInput id="descriptionInput" width="400"/>
+	
+	<mx:Label text="Add other fields on the data grid directly"/>
+	<mx:HBox width="100%">
+		<mx:Button label="Add" enabled="{titleInput.text &amp;&amp; descriptionInput.text &amp;&amp; idInput.text  &amp;&amp; skinIDInput.text}" click="newItem(event)"/>
+	</mx:HBox>
+	
+	<mx:Spacer height="20"/>
+	
+	<mx:DataGrid id="datagrid" width="100%" height="100%" dataProvider="{_achievements}" editable="true">
+		<mx:columns>
+			<mx:DataGridColumn dataField="ACHIEVEMENT_TYPE" editable="true"/>
+			<mx:DataGridColumn dataField="REQUIREMENTS" editable="true"/>
+			<mx:DataGridColumn dataField="GAMESKIN" editable="true"/>
+			<mx:DataGridColumn dataField="ISTROPHY" width="80" itemRenderer="com.gamesys.iwi.webgame.tools.integration.view.renderer.CheckRenderer" />
+			<mx:DataGridColumn dataField="NAME" width="100" editable="true"/>
+			<mx:DataGridColumn dataField="DESCRIPTION"  width="150"  editable="true"/>
+			<mx:DataGridColumn dataField="BONUS_COINS" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="BONUS_COUNT" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="REFERENCE_INDEX" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="REFERENCE_DESCRIPTION" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="ACHIEVEMENT_CATEGORY" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="ACHIEVEMENT_CATEGORY_SORT" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="NOTES" width="50"  editable="true"/>
+			<mx:DataGridColumn dataField="IS_HIDDEN" width="50" itemRenderer="com.gamesys.iwi.webgame.tools.integration.view.renderer.CheckRenderer" />
+			<mx:DataGridColumn dataField="IS_REGISTERED" width="50" itemRenderer="com.gamesys.iwi.webgame.tools.integration.view.renderer.CheckRenderer" />
+			<mx:DataGridColumn dataField="ACHIEVABLE_FROM"  width="50" editable="true"/>
+			<mx:DataGridColumn dataField="ACHIEVABLE_TO"  width="50" editable="true"/>
+		</mx:columns>
+	</mx:DataGrid>
+	<mx:HBox width="100%" horizontalAlign="right">
+		<mx:Label text="Double click into fields on the sheet to edit." color="0xffffff"/>
+		<mx:Button label="Save and next" enabled="{_achievements.length > 0}" click="nextClickHandler(event)"/>
+	</mx:HBox>
+</mx:VBox>

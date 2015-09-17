@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         verticalAlign="middle" horizontalAlign="left"
+         verticalGap="10" horizontalGap="50" borderStyle="solid" borderColor="#ffffff" borderThickness="1"
+         paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="20"
+        >
+    <fx:Metadata>
+        [DefaultProperty("mxmlContent")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import com.gamesys.iwi.webgame.tools.integration.view.events.ExamEvent;
+
+        import mx.core.IVisualElement;
+
+        public static const START_EXAM:String = "START_EXAM";
+
+        [ArrayElementType("mx.core.IVisualElement")]
+        public function set mxmlContent(value:Array):void
+        {
+            _mxmlContent = value;
+        }
+
+        private var _mxmlContent:Array;
+
+        public var examID:String;
+        [Bindable]
+        public var nameLabel:String = "测试类型";
+
+        public var examData:Object;
+
+        public var onCommitData:Function;
+
+        private function startbuttonclick(e:Event):void
+        {
+            if (onCommitData != null) {
+                onCommitData();
+            }
+            this.dispatchEvent(new ExamEvent(START_EXAM, examID, examData));
+        }
+
+
+        override protected function createChildren():void
+        {
+            super.createChildren();
+            if (_mxmlContent == null) {
+                return;
+            }
+            for (var i:int = 0; i < _mxmlContent.length; i++) {
+                var elt:IVisualElement = _mxmlContent[i];
+                contentsContainer.addChild(elt as DisplayObject);
+            }
+
+        }
+        ]]>
+	</fx:Script>
+    <mx:Label text="{nameLabel}" fontSize="20" color="#57c8ff"/>
+    <mx:VBox id="contentsContainer" verticalAlign="top" width="100%" height="100%"/>
+
+    <mx:Button label="开始" click="startbuttonclick(event)" width="100" height="50"/>
+</mx:VBox>

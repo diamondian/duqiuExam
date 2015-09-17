@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="100%" height="100%"
+		 creationComplete="translationdataview1_creationCompleteHandler(event)"
+		 horizontalAlign="center" verticalAlign="middle"
+		 paddingTop="20" paddingBottom="20" paddingLeft="20" paddingRight="20"
+		>
+	<fx:Script>
+		<![CDATA[
+			import com.gamesys.iwi.webgame.tools.integration.AchievementsSpec;
+			import com.gamesys.iwi.webgame.tools.integration.DragableContent;
+			import com.gamesys.iwi.webgame.tools.integration.Output;
+			
+			import mx.events.FlexEvent;
+			
+			public static const EDIT_SPEC:String = "EDIT_SPEC";
+			public static const WRITE_TO_FILE:String = "WRITE_TO_FILE";
+			public static const ALL_DONE:String = "ALL_DONE";
+			
+			[Bindable]
+			public var finished : Boolean;
+			[Bindable]
+			public var operationModeIsInput : Boolean;
+			
+			[Bindable]
+			public function get droped() : Boolean
+			{
+				return _droped;
+			}
+			
+			[Bindable]
+			private var _readed : Boolean;
+			
+			public function set droped( value : Boolean ) : void
+			{
+				_droped = value;
+				
+				if( value )
+				{
+					borderShape.setStyle( "backgroundColor", 0x66ffb2 );
+				}
+				else
+				{
+					borderShape.setStyle( "backgroundColor", 0xA4A4A4 );
+				}
+			}
+			
+			private var achievementsSpecFile : AchievementsSpec;
+			
+			private var readed : Boolean;
+			
+			private var _droped : Boolean;
+			
+			private var _targetFolder:File;
+			
+			protected function translationdataview1_creationCompleteHandler( event : FlexEvent ) : void
+			{
+				achievementsSpecFile = AchievementsSpec.getInstance( draginArea );
+				achievementsSpecFile.addEventListener( DragableContent.FILE_ACCEPT, fileDragedHandler );
+				achievementsSpecFile.addEventListener( DragableContent.FILE_CANCELED, fileDragedOutHandler );
+				achievementsSpecFile.addEventListener( DragableContent.FILE_READED, fileReadedHandler );
+			}
+			
+			protected function fileDragedHandler( event : Event ) : void
+			{
+				droped = true;
+			}
+			
+			protected function fileDragedOutHandler( event : Event ) : void
+			{
+				droped = false;
+			}
+			
+			protected function fileReadedHandler( event : Event ) : void
+			{
+				_readed = true;
+				droped = true;
+			}
+			
+			protected function chooseFolderHandler( event : MouseEvent ) : void
+			{
+				var file : File = new File();
+				file.addEventListener( Event.SELECT, dirSelected );
+				file.browseForDirectory( "Select a directory" );
+			}
+			
+			private function dirSelected( event : Event ) : void
+			{
+				_targetFolder = File( event.currentTarget );
+				navigator.label = _targetFolder.nativePath + "  (click to navigate)";
+				
+				var output:Output = new Output();
+				
+				this.dispatchEvent(new Event(WRITE_TO_FILE,true));
+				
+				if(!operationModeIsInput)
+				{
+					output.write2File(achievementsSpecFile.outputContent,
+						_targetFolder,"Achievements_"+achievementsSpecFile.gameSkin,
+						achievementsSpecFile.extention);
+				}
+				
+				var useJson : Boolean = true;
+				if(useJson)
+				{
+					//Output Json file for each slot
+					var achievementsBySlotSkin : Object = achievementsSpecFile.getAchievementsBySlots();
+					for(var slotId : String in achievementsBySlotSkin)
+					{
+						var json : String = JSON.stringify(achievementsBySlotSkin[slotId], null, " ");
+						output.write2File(json,_targetFolder,slotId,"txt");
+					}
+				}
+				else
+				{
+					var seperateAchievements:Array = achievementsSpecFile.getSeperateAchievement();
+					
+					try{
+						for each(var ach:Object in seperateAchievements)
+						{
+							output.write2File(ach.value,_targetFolder,ach.key,"txt");
+						}
+					}
+					catch(err:Error)
+					{
+						
+					}
+				}
+				
+				finished = true;
+				
+				this.dispatchEvent(new Event(ALL_DONE,true));
+			
+			}
+			
+			protected function navigator_clickHandler(event:MouseEvent):void
+			{
+				_targetFolder.openWithDefaultApplication();
+			}
+			
+			protected function edit(event:MouseEvent):void
+			{
+				this.dispatchEvent(new Event(EDIT_SPEC,true));
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:HBox horizontalAlign="center" verticalAlign="middle" horizontalGap="100">
+		
+		<mx:VBox id="borderShape"  
+				 includeInLayout="{ !finished &amp;&amp; operationModeIsInput }" 
+				 visible="{ !finished &amp;&amp; operationModeIsInput }"
+				 height="220" width="220"
+				 backgroundColor="#A4A4A4" horizontalAlign="center" verticalAlign="middle">
+			<mx:VBox id="draginArea"
+					 height="180" width="180"
+					 backgroundColor="#222222" horizontalAlign="center" verticalAlign="middle" verticalGap="2">
+				<mx:Text includeInLayout="{ droped }" text="DONE !" width="130" mouseEnabled="false"
+						 color="#82D4E5" fontSize="15" paddingTop="10" textAlign="center"
+						 mouseChildren="false" visible="{ droped }" />
+				<mx:Text includeInLayout="{ !droped }" text="DRAG THE " width="130" mouseEnabled="false"
+						 color="#82D4E5" fontSize="15" paddingTop="10" textAlign="center"
+						 mouseChildren="false" visible="{ !droped }" />
+				<mx:Text includeInLayout="{ !droped }" text="GAMESPEC.CSV" width="162" mouseEnabled="false"
+						 color="#FFFFFF" fontSize="15" textAlign="center"
+						 mouseChildren="false" visible="{ !droped }" />
+				<mx:Text includeInLayout="{ !droped }" text="INTO HERE" width="116" mouseEnabled="false"
+						 color="#82D4E5" fontSize="15" textAlign="center"
+						 mouseChildren="false" visible="{ !droped }" />
+			</mx:VBox>
+		</mx:VBox>
+		
+		<mx:VBox id="borderShape0"
+				 includeInLayout="{ !finished &amp;&amp; (!operationModeIsInput || _readed)}" 
+				 visible="{ !finished &amp;&amp; (!operationModeIsInput || _readed)}"
+				 height="220" width="220"
+				 backgroundColor="#575757"
+				 horizontalAlign="center" verticalAlign="middle">
+			
+			<mx:Button 
+					   height="54" label="SAVE TO FILES" width="183"
+					   click="chooseFolderHandler(event)" />
+			
+			<mx:Text includeInLayout="{ _readed }"  visible="{ _readed }" 
+					 text="OR" width="130" mouseEnabled="false"
+					 color="#82D4E5" fontSize="15" paddingTop="10" textAlign="center"
+					 mouseChildren="false"/>
+			
+			<mx:Button 
+					   includeInLayout="{ _readed }"  visible="{ _readed }" 
+					   height="54" label="EDIT SPEC" width="183"
+					   click="edit(event)" />
+		</mx:VBox>	
+	</mx:HBox>
+	
+	<mx:VBox  visible="{ finished }"  includeInLayout="{ finished }" >
+		<mx:Text id="txt" text="Done! Now you can find all these achievement files at:" color="#82D4E5" fontSize="15" textAlign="center"/>
+		<mx:LinkButton id="navigator" color="#ffffff" click="navigator_clickHandler(event)"/>
+	</mx:VBox>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mx:VBox>

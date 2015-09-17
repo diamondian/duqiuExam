@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%">
+	<fx:Script>
+		<![CDATA[
+		public static const MATHMATIC:String = "MATHMATIC";
+		public static const ENGLISH:String = "ENGLISH";
+		public static const ZHONGWEN:String = "ZHONGWEN";
+
+		protected function button1_clickHandler(event:MouseEvent):void
+		{
+			this.dispatchEvent(new Event(MATHMATIC, true));
+		}
+
+		protected function button2_clickHandler(event:MouseEvent):void
+		{
+			this.dispatchEvent(new Event(ENGLISH, true));
+		}
+		protected function button3_clickHandler(event:MouseEvent):void
+		{
+			this.dispatchEvent(new Event(ZHONGWEN, true));
+		}
+		]]>
+	</fx:Script>
+	
+	<mx:Image source="@Embed('/assets/qq.png')" width="100%" height="100%" maintainAspectRatio="true"/>
+	<mx:VBox height="100%" width="100%" paddingLeft="130" verticalGap="30"
+			 horizontalAlign="left" verticalAlign="middle">
+		<mx:Button label="做数学习题" width="150" height="60"
+				   click="button1_clickHandler(event)" />
+		<mx:Button label="做英语习题" width="150" height="60"
+				   click="button2_clickHandler(event)"/>
+		<mx:Button label="做语文习题" width="150" height="60"
+				   click="button3_clickHandler(event)"/>
+		
+		<!--<mx:Text text="If you only got locale text for new slot game,just click first button to create a output file with guide.&#xa;If you have latest translation.xml and a locale text output file already,choose the button below&#xa;"
+				 color="#CFCFCF" />-->
+	</mx:VBox>
+</mx:Canvas>

@@ -1,0 +1,64 @@
+/* CSS file */
+@namespace mx "library://ns.adobe.com/flex/mx";
+mx|Application
+{
+	cornerRadius:0;	
+	themeColor: #00DEFF;
+
+}
+@font-face {
+	src:url("assets/msyhl.ttc");
+	fontFamily: msyhl;
+	embedAsCFF: false;
+	advancedAntiAliasing: true;
+}
+global{
+	fontFamily: msyhl;
+	fontSize: 15;
+}
+mx|Button
+{
+	fillAlphas: 0.5, 0.5, 0.5, 0.5;
+	fillColors: #444444, #444444;
+	cornerRadius: 0;
+	borderColor: #FFFFFF;
+	color: #FFFFFF;
+	textRollOverColor: #222222;
+	textSelectedColor: #222222;
+	themeColor: #444444;
+	fontFamily: msyhl;
+	fontStyle: normal;
+	fontWeight: normal;
+}
+mx|CheckBox
+{
+	iconColor: #00DEFF;
+	textRollOverColor: #ffe4c4;
+	textSelectedColor: #00DEFF;
+	fontSize: 12;
+}
+/*mx|ComboBox {
+	cornerRadius: 0;
+	iconColor: #00DEFF;
+	color: #ffffff;
+	borderColor: #b7babc;
+	highlightAlphas: 0, 0;
+	fillAlphas: 0, 0, 0, 0;
+	fillColors: #ffffff, #ffffff, #ffffff, #ffffff;
+	selectionColor: #ffffff;
+	textSelectedColor: #ffffff;
+	themeColor: #ffffff;
+	alternatingItemColors: #000000, #222222;
+	dropdownStyleName: "myComboBoxDropDowns";
+	fontFamily: msyhl;
+	fontStyle: normal;
+	fontWeight: normal;
+}*/
+mx|Label
+{
+	color:#cccccc
+}
+
+/*.myComboBoxDropDowns {
+	color: #cccccc;
+}*/

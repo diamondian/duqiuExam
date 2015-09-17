@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:exams="com.gamesys.iwi.webgame.tools.integration.view.exams.*"
+						height="700" layout="vertical" width="892"
+						addedToStage="windowedapplication1_addedToStageHandler(event)"
+						backgroundColor="#222222" paddingBottom="0" paddingLeft="0" paddingRight="0"
+						paddingTop="0" verticalGap="0"
+						showTitleBar="false" showStatusBar="false"
+						xmlns:integration="com.gamesys.iwi.webgame.tools.integration.*"
+						xmlns:view="com.gamesys.iwi.webgame.tools.integration.view.*">
+	<fx:Style source="main.css"/>
+
+	<fx:Script>
+		<![CDATA[
+		import com.gamesys.iwi.webgame.tools.integration.AchievementsSpec;
+		import com.gamesys.iwi.webgame.tools.integration.view.exams.EnglishExam;
+		import com.gamesys.iwi.webgame.tools.integration.view.StatusWindow;
+		import com.gamesys.iwi.webgame.tools.integration.view.TaskChooser;
+
+		import mx.controls.Alert;
+		import mx.managers.PopUpManager;
+
+		private var isNormalSize:Boolean = true;
+		private var _currentStateWindow:StatusWindow;
+
+		[Bindable]
+		private var _version:String;
+
+		protected function windowedapplication1_addedToStageHandler(event:Event):void
+		{
+			var xml:XML = NativeApplication.nativeApplication.applicationDescriptor;
+			var ns:Namespace = xml.namespace();
+			_version = xml.ns::versionNumber;
+			//------- MODEL SELECTOR --------------
+			this.addEventListener(TaskChooser.MATHMATIC, function (event:Event):void
+			{
+				mainViewstack.selectedIndex = 1;
+			});
+			this.addEventListener(TaskChooser.ENGLISH, function (event:Event):void
+			{
+				mainViewstack.selectedIndex = 2;
+			});
+			this.addEventListener(TaskChooser.ZHONGWEN, function (event:Event):void
+			{
+				mainViewstack.selectedIndex = 3;
+			});
+
+			this.addEventListener(EnglishExam.WRITE_TO_FILE, showWriting);
+			this.addEventListener(EnglishExam.ALL_DONE, hideStateWindow);
+
+			_currentStateWindow = new StatusWindow();
+		}
+
+		protected function hideStateWindow(event:Event):void
+		{
+			PopUpManager.removePopUp(_currentStateWindow);
+		}
+
+		protected function showWriting(event:Event):void
+		{
+			_currentStateWindow.promptState = StatusWindow.STATE_WRITING;
+			showStateWindow()
+		}
+
+		private function showStateWindow():void
+		{
+			PopUpManager.addPopUp(_currentStateWindow, this, true);
+			PopUpManager.centerPopUp(_currentStateWindow);
+		}
+
+		protected function label1_clickHandler(event:MouseEvent):void
+		{
+			Alert.show("赶紧学习!!!");
+		}
+
+		private function dockHandler():void
+		{
+			this.nativeWindow.minimize()
+		}
+
+		private function exitHandler():void
+		{
+			this.exit();
+		}
+
+		private function commit():void
+		{
+			//TranslationDataView( viewstack1.selectedChild ).commitData();
+		}
+
+		protected function max(event:MouseEvent):void
+		{
+			if (isNormalSize) {
+				this.nativeWindow.maximize();
+			}
+			else {
+				this.nativeWindow.restore();
+			}
+			isNormalSize = !isNormalSize;
+		}
+		]]>
+	</fx:Script>
+	<mx:HBox height="64" width="100%"
+			 mouseDown="this.nativeWindow.startMove()"
+			 backgroundColor="#111111" horizontalAlign="right" paddingLeft="20" paddingRight="20"
+			 verticalAlign="middle">
+		<mx:Label selectable="false" text="杜秋小朋友专用学习软件" width="100%"
+				  color="#AAF0FF" fontSize="23"/>
+		<mx:Label selectable="false" text="{'版本 '+_version}"
+				  click="label1_clickHandler(event)"
+				  color="#579BAA" paddingTop="10"/>
+		<mx:Spacer height="10" width="100%"/>
+		<mx:LinkButton height="28" label="_" width="28" x="414"
+					   y="7"
+					   click="dockHandler()"
+					   color="#D9D9D9" fontWeight="bold" paddingBottom="2"
+					   paddingLeft="0" paddingRight="0"/>
+		<mx:LinkButton height="28" label="[]" width="35"
+					   click="max(event)"
+					   color="#D9D9D9" fontSize="13" fontWeight="bold"
+					   textAlign="left"/>
+		<mx:LinkButton height="28" label="X" width="28" x="444"
+					   y="7"
+					   click="exitHandler()"
+					   color="#D9D9D9" fontFamily="Verdana" fontSize="13" fontWeight="bold"
+					   textAlign="left"/>
+	</mx:HBox>
+	<mx:ViewStack id="mainViewstack"
+				  height="100%" width="100%">
+		<view:TaskChooser/>
+		<exams:MathmaticExam id="achievementsInput"/>
+		<exams:EnglishExam id="inputAndOutput"/>
+	</mx:ViewStack>
+</mx:WindowedApplication>

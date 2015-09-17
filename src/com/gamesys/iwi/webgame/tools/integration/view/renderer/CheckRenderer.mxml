@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 implements="mx.controls.listClasses.IListItemRenderer,mx.controls.listClasses.IDropInListItemRenderer"
+		 horizontalAlign="center" verticalAlign="middle">
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.dataGridClasses.DataGridListData;
+			import mx.controls.listClasses.BaseListData;
+			import mx.controls.listClasses.IDropInListItemRenderer;
+			import mx.controls.listClasses.IListItemRenderer;
+			
+			[Bindable]
+			private var isSelected:Boolean = false;
+			
+			override public function set data(value:Object):void
+			{
+				_data = value;
+				isSelected = value[_listData.dataField] == "TRUE";
+			}
+			
+			private var _listData:DataGridListData;
+			
+			// Make the listData property bindable.
+			
+			// Define the getter method.
+			private var _data:Object;
+			[Bindable("dataChange")]
+			public function get listData():BaseListData
+			{
+				return _listData;
+			}
+			
+			// Define the setter method,
+			public function set listData(value:BaseListData):void
+			{
+				_listData = DataGridListData(value);
+			}
+			
+			protected function checkbox1_changeHandler(event:Event):void
+			{
+				if(_data)
+					_data[_listData.dataField] = cb.selected?"TRUE":"FALSE";
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:CheckBox id="cb" selected="{isSelected}" change="checkbox1_changeHandler(event)"/>
+</mx:HBox>
