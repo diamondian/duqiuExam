@@ -24,11 +24,10 @@
 
         private var _mxmlContent:Array;
 
-        public var examID:String;
         [Bindable]
         public var nameLabel:String = "测试类型";
 
-        public var examData:Object;
+//        public var examData:Object;
 
         public var onCommitData:Function;
 
@@ -37,7 +36,7 @@
             if (onCommitData != null) {
                 onCommitData();
             }
-            this.dispatchEvent(new ExamEvent(START_EXAM, examID, examData));
+//            this.dispatchEvent(new ExamEvent(START_EXAM, examID, examData));
         }
 
 

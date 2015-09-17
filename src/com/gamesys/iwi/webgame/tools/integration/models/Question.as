@@ -13,5 +13,11 @@ package com.gamesys.iwi.webgame.tools.integration.models
 		{
 			return answer === correctAnswer;
 		}
+
+
+		public function toString():String
+		{
+			return "Question: "+bodyText + ". answer:"+answer;
+		}
 	}
 }

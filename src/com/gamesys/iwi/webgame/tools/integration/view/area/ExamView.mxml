@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         verticalAlign="middle" horizontalAlign="left"
+         verticalGap="10" horizontalGap="50" borderStyle="solid" borderColor="#ffffff" borderThickness="1"
+         paddingLeft="20" paddingRight="20" paddingTop="10" paddingBottom="20" creationComplete="creationCompleteHandler(event)"
+        >
+    <fx:Metadata>
+        [DefaultProperty("mxmlContent")]
+    </fx:Metadata>
+    <fx:Script>
+		<![CDATA[
+        import com.gamesys.iwi.webgame.tools.integration.models.BaseQuestionGenerator;
+        import com.gamesys.iwi.webgame.tools.integration.models.Question;
+        import com.gamesys.iwi.webgame.tools.integration.view.events.ExamEvent;
+
+        import mx.controls.Alert;
+
+        import mx.core.IVisualElement;
+        import mx.events.FlexEvent;
+
+        public static const QUIT_EXAM:String = "QUIT_EXAM";
+
+        [Bindable]
+        protected var currentQuestionIndex:uint;
+        [Bindable]
+        public var totalQuestions:uint;
+
+        [ArrayElementType("mx.core.IVisualElement")]
+        public function set mxmlContent(value:Array):void
+        {
+            _mxmlContent = value;
+        }
+
+        private var _mxmlContent:Array;
+
+        public var questionGenerator:BaseQuestionGenerator;
+        [Bindable]
+        public var examID:String;
+        [Bindable]
+        public var nameLabel:String = "测试类型";
+
+        public var allQuestions:Vector.<Question>;
+        public var answeredQuestions:Vector.<Question>;
+        public var wrongAnswers:Vector.<Question>;
+
+        public var wrongTimes:uint;
+        [Bindable]
+        public var numberWrong:uint;
+        [Bindable]
+        public var maxScrore:Number = 100;
+        [Bindable]
+        public var scrore:Number = 0;
+
+        [Bindable]
+        public var isRunning:Boolean;
+        [Bindable]
+        public var isRedoing:Boolean;
+        [Bindable]
+        public var evaluationText:String = "";
+
+        private function getEvaluationText(isForRedo:Boolean = false):String
+        {
+            return null;
+        }
+
+        private function quitExam(e:Event):void
+        {
+            this.dispatchEvent(new ExamEvent(QUIT_EXAM, examID));
+        }
+
+
+        override protected function createChildren():void
+        {
+            super.createChildren();
+            if (_mxmlContent == null) {
+                return;
+            }
+            stack.removeAllChildren();
+            for (var i:int = 0; i < _mxmlContent.length; i++) {
+                var elt:IVisualElement = _mxmlContent[i];
+                stack.addChild(elt as DisplayObject);
+            }
+        }
+
+        public function startExam():void
+        {
+            this.currentQuestionIndex = 0;
+            allQuestions = new <Question>[];
+            answeredQuestions = new <Question>[];
+            wrongAnswers = new <Question>[];
+            for (var j:int = 0; j < totalQuestions; j++) {
+                var question:Question = questionGenerator.getNewQuestion();
+                allQuestions.push(question);
+            }
+            stack.selectedIndex = 0;
+            goNext();
+            isRedoing = false;
+            isRunning = true;
+        }
+
+        public function redoExam(e:Event = null):void
+        {
+            isRedoing = true;
+            stack.selectedIndex = 0;
+            goNext();
+        }
+
+        protected function goNext():void
+        {
+            if (answeredQuestions.length) {
+                if (answeredQuestions.length == allQuestions.length) {
+                    if (wrongAnswers.length) {
+                        currentQuestionIndex = allQuestions.indexOf(wrongAnswers[0]);
+                    }
+                    else {
+                        showEvaluation();
+                    }
+                }
+                else {
+                    currentQuestionIndex++
+                }
+            }
+
+            populateViewWithQuestions(allQuestions[currentQuestionIndex]);
+        }
+
+        private function checkCurrentQuestionAnswer():void
+        {
+            var current:Question = allQuestions[currentQuestionIndex];
+            current.answer = getAnswerFromView();
+            if (current.isCorrect) {
+                if (wrongAnswers.indexOf(current) != -1) {
+                    wrongAnswers.splice(wrongAnswers.indexOf(current), 1);
+                }
+            }
+            else {
+                if (wrongAnswers.indexOf(current) == -1) {
+                    wrongAnswers.push(current);
+                }
+                else
+                {
+                    stillWrong();
+                }
+                wrongTimes++;
+            }
+            numberWrong = wrongAnswers.length;
+        }
+
+        protected function stillWrong():void
+        {
+            Alert.show("还是不对呀！")
+        }
+
+        protected function getAnswerFromView():Object
+        {
+            throw new Error("method must be overriden");
+            return null;
+        }
+
+        private function populateViewWithQuestions(question:Question):void
+        {
+            questionBodyText.text = question.bodyText;
+            input.text = "";
+        }
+
+        protected function submitAnswer_clickHandler(event:MouseEvent):void
+        {
+            if (answeredQuestions.length == allQuestions.length) {
+                if (wrongAnswers.length) {
+                    if(isRedoing)
+                    {
+                        checkCurrentQuestionAnswer();
+                        goNext();
+                    }
+                    else
+                    {
+                        showRedoView();
+                    }
+                }
+                else {
+                    showEvaluation();
+                }
+            }
+            else {
+                checkCurrentQuestionAnswer();
+                goNext();
+            }
+        }
+
+        private function showEvaluation():void
+        {
+            evaluationText = getEvaluationText();
+            stack.selectedIndex = 2;
+        }
+
+        private function showRedoView():void
+        {
+            evaluationText = getEvaluationText(true);
+            stack.selectedIndex = 1;
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void
+        {
+        }
+        
+        ]]>
+	</fx:Script>
+    <mx:Label text="{nameLabel}" fontSize="20" color="#57c8ff"/>
+    <mx:HBox verticalAlign="bottom" horizontalGap="0">
+        <mx:Label text="{currentQuestionIndex}" fontSize="30"/>
+        <mx:Label text="/" fontSize="40"/>
+        <mx:Label text="{totalQuestions}" textAlign="left" fontSize="40" color="#57c8ff"/>
+        <mx:Spacer width="200"/>
+        <mx:Label text="还有 {numberWrong} 道题不正确，奔跑吧，少年！}" visible="{isRedoing}" color="red"/>
+    </mx:HBox>
+    <mx:ViewStack id="stack" width="100%" height="100%" visible="{isRunning}" includeInLayout="{isRunning}}">
+        <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
+            <mx:HBox>
+                <mx:Text id="questionBodyText" text="" fontSize="40" color="white"/>
+                <mx:TextInput id="input" fontSize="30" width="100" color="#52ff49"/>
+            </mx:HBox>
+            <mx:Button label="下一题" enabled="{input.text}}" click="submitAnswer_clickHandler(event)" width="160"/>
+        </mx:VBox>
+        <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
+            <mx:Label text="{evaluationText}" fontSize="20"/>
+            <mx:Button label="修改错误答案" click="redoExam(event)" width="60"/>
+        </mx:VBox>
+        <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
+            <mx:Label text="{scrore}" fontSize="100"/>
+            <mx:Label text="{evaluationText}" fontSize="20"/>
+        </mx:VBox>
+    </mx:ViewStack>
+    <mx:HBox width="100%" horizontalAlign="right" verticalAlign="bottom" paddingBottom="10">
+        <mx:Button label="返回" click="quitExam(event)" width="100" height="30"/>
+    </mx:HBox>
+</mx:VBox>

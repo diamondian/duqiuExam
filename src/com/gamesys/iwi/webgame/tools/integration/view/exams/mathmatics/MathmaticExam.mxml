@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:area="com.gamesys.iwi.webgame.tools.integration.view.area.*"
+         xmlns:mathmatics="com.gamesys.iwi.webgame.tools.integration.view.exams.mathmatics.*"
+         width="100%" height="100%" creationComplete="creationCompleteHandler(event)"
+        >
+    <mx:Script>
+		<![CDATA[
+        import com.gamesys.iwi.webgame.tools.integration.models.math.MathQuestionGenerator;
+        import com.gamesys.iwi.webgame.tools.integration.view.area.ExamView;
+
+        import mx.events.FlexEvent;
+
+        [Bindable]
+        private var isRunning:Boolean;
+
+        private function start_jiajianfa():void
+        {
+            var examData:Object = {};
+            examData.hasJiafa = checkBox_jiafa.selected;
+            examData.hasJianfa = checkBox_jianfa.selected;
+            examData.hunhe = checkBox_jiafa.selected && checkBox_jianfa.selected && checkBox_hunhe.selected;
+            examData.hasXiaoshu = checkBox_xiaoshu.selected;
+            examData.range = stepper.value;
+            examData.times = stepper2.value;
+
+            var generator:MathQuestionGenerator = new MathQuestionGenerator(examData);
+            mathExamView.questionGenerator = generator;
+            mathExamView.totalQuestions = stepper3.value;
+            mathExamView.startExam();
+            viewStack.selectedIndex = 0;
+            isRunning = true;
+        }
+
+        private function creationCompleteHandler(event:FlexEvent):void
+        {
+            this.addEventListener(ExamView.QUIT_EXAM, onQuitExam)
+        }
+
+        private function onQuitExam(event:ExamView):void
+        {
+            isRunning = false;
+        }
+        ]]>
+	</mx:Script>
+    <mx:HBox visible="{!isRunning}" includeInLayout="{!isRunning}" verticalAlign="middle" horizontalAlign="left"
+             verticalGap="5" horizontalGap="50"
+             paddingLeft="20" paddingRight="20" paddingTop="20" paddingBottom="20">
+        <area:ExamChooser id="jiajianfaExamChooser" nameLabel="加减法" onCommitData="start_jiajianfa">
+            <mx:CheckBox id="checkBox_jiafa" label="加法" selected="true"/>
+            <mx:CheckBox id="checkBox_jianfa" label="减法" selected="true"/>
+            <mx:CheckBox id="checkBox_hunhe" label="加减混合"
+                         enabled="{checkBox_jiafa.selected &amp;&amp; checkBox_jianfa.selected}" selected="true"/>
+            <mx:CheckBox id="checkBox_xiaoshu" label="包含小数" selected="false"/>
+            <mx:Label text="取数范围："/>
+            <mx:NumericStepper id="stepper" stepSize="50" value="100" minimum="10" maximum="100000" width="60"/>
+            <mx:Label text="加减次数："/>
+            <mx:NumericStepper id="stepper2" stepSize="1" value="3" minimum="2" maximum="10" width="60"/>
+            <mx:Label text="出题数目："/>
+            <mx:NumericStepper id="stepper3" stepSize="5" value="10" minimum="1" maximum="200" width="60"/>
+        </area:ExamChooser>
+    </mx:HBox>
+    <mx:ViewStack id="viewStack" width="100%" height="100%" visible="{isRunning}" includeInLayout="{isRunning}">
+        <mathmatics:MathExamView id="mathExamView" nameLabel="加减法习题"/>
+    </mx:ViewStack>
+</mx:HBox>

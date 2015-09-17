@@ -3,6 +3,7 @@
 						xmlns:s="library://ns.adobe.com/flex/spark"
 						xmlns:mx="library://ns.adobe.com/flex/mx"
 						xmlns:exams="com.gamesys.iwi.webgame.tools.integration.view.exams.*"
+						xmlns:mathmatics="com.gamesys.iwi.webgame.tools.integration.view.exams.mathmatics.*"
 						height="700" layout="vertical" width="892"
 						addedToStage="windowedapplication1_addedToStageHandler(event)"
 						backgroundColor="#222222" paddingBottom="0" paddingLeft="0" paddingRight="0"
@@ -117,7 +118,7 @@
 					   click="dockHandler()"
 					   color="#D9D9D9" fontWeight="bold" paddingBottom="2"
 					   paddingLeft="0" paddingRight="0"/>
-		<mx:LinkButton height="28" label="[]" width="35"
+		<mx:LinkButton height="28" label="[ ]" width="35"
 					   click="max(event)"
 					   color="#D9D9D9" fontSize="13" fontWeight="bold"
 					   textAlign="left"/>
@@ -130,7 +131,7 @@
 	<mx:ViewStack id="mainViewstack"
 				  height="100%" width="100%">
 		<view:TaskChooser/>
-		<exams:MathmaticExam id="achievementsInput"/>
+		<mathmatics:MathmaticExam id="achievementsInput"/>
 		<exams:EnglishExam id="inputAndOutput"/>
 	</mx:ViewStack>
 </mx:WindowedApplication>

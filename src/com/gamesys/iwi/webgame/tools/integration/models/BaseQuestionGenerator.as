@@ -14,7 +14,7 @@ package com.gamesys.iwi.webgame.tools.integration.models
 
 		public function getNewQuestion():Question
 		{
-
+			return null;
 		}
 	}
 }

@@ -31,10 +31,10 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 			for (var i:int = 0; i < times; i++) {
 
 				var isPositiveNumber:Boolean =
-						(calculation != NaN && hasJianfa && hunhe)?getRandomResult():true;
+						(isNaN(calculation) && hasJianfa && hunhe)?getRandomResult():true;
 				var number:Number = getRandomNumber(
 						isPositiveNumber,hasXiaoshu,range);
-				if(calculation == NaN)
+				if(isNaN(calculation))
 				{
 					calculation = number;
 					q.bodyText = calculation + "";
@@ -54,7 +54,7 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 			q.answer = calculation;
 			q.bodyText += " = ";
 
-
+			trace(q);
 			return q;
 		}
 
