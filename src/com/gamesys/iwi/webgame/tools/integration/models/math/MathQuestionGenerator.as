@@ -17,16 +17,42 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 		{
 			var q:Question = new Question();
 
-			/*
-			 examData.hasJiafa = checkBox_jiafa.selected;
-			 examData.hasJianfa = checkBox_jianfa.selected;
-			 examData.hunhe = checkBox_jiafa.selected && checkBox_jianfa.selected && checkBox_hunhe.selected;
-			 examData.hasXiaoshu = checkBox_xiaoshu.selected;
-			 examData.hasFushu = checkBox_fushu.selected;
-			 examData.range = stepper.value;
-			 examData.times = stepper2.value;
-			 */
 
+			 var hasJiafa:Boolean = _config.hasJiafa;
+			 var hasJianfa:Boolean = _config.hasJianfa;
+			 var hunhe:Boolean = _config.hunhe;
+			 var hasXiaoshu:Boolean = _config.hasXiaoshu;
+//			 var hasFushu:Boolean = _config.hasFushu;
+			 var range:int = _config.range;
+			 var times:int = _config.times;
+
+			var calculation:Number;
+
+			for (var i:int = 0; i < times; i++) {
+
+				var isPositiveNumber:Boolean =
+						(calculation != NaN && hasJianfa && hunhe)?getRandomResult():true;
+				var number:Number = getRandomNumber(
+						isPositiveNumber,hasXiaoshu,range);
+				if(calculation == NaN)
+				{
+					calculation = number;
+					q.bodyText = calculation + "";
+				}
+				else
+				{
+					calculation += number;
+					if(number < 0)
+					{
+						range += number;
+					}
+					q.bodyText += getOperatorText(number) + number;
+				}
+
+			}
+
+			q.answer = calculation;
+			q.bodyText += " = ";
 
 
 			return q;
@@ -37,14 +63,14 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 			return 1;
 		}
 
-		private function getRandomOperator():Boolean
+		private function getRandomResult():Boolean
 		{
 			return Math.random() < 0.5;
 		}
 
-		private function getOperatorText(isMinus:Boolean):String
+		private function getOperatorText(value:Number):String
 		{
-			return isMinus?" - ":" + ";
+			return (value < 0)?" - ":" + ";
 		}
 	}
 }
