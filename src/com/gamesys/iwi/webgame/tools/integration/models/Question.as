@@ -17,7 +17,7 @@ package com.gamesys.iwi.webgame.tools.integration.models
 
 		public function toString():String
 		{
-			return "Question: "+bodyText + ". answer:"+answer;
+			return "Question: "+bodyText + ". correct answer:"+correctAnswer;
 		}
 	}
 }

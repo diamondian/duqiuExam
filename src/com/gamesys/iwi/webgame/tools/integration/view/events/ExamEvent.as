@@ -11,9 +11,9 @@ package com.gamesys.iwi.webgame.tools.integration.view.events
 		private var _data:Object;
 		public function ExamEvent(type:String, examID:String,data:Object = null)
 		{
-			super(type, true);
 			_examID = examID;
 			_data = data;
+			super(type, true);
 		}
 
 		public function get examID():String

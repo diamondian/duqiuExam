@@ -36,7 +36,7 @@
             this.addEventListener(ExamView.QUIT_EXAM, onQuitExam)
         }
 
-        private function onQuitExam(event:ExamView):void
+        private function onQuitExam(event:Event):void
         {
             isRunning = false;
         }

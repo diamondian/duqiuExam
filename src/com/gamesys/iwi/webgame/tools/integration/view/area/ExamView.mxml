@@ -61,6 +61,18 @@
 
         private function getEvaluationText(isForRedo:Boolean = false):String
         {
+            if(isForRedo)
+            {
+                return "一共"+totalQuestions+"道题，算错了"+wrongAnswers.length+"道哦！点下面的按钮改正吧。";
+            }
+
+            if(wrongTimes)
+            {
+                return "一共"+totalQuestions+"道题，一共算错了"+wrongTimes+"次";
+            }
+
+            return "太棒了！！全部做对"+totalQuestions+"道题";
+
             return null;
         }
 
@@ -89,6 +101,7 @@
             allQuestions = new <Question>[];
             answeredQuestions = new <Question>[];
             wrongAnswers = new <Question>[];
+            wrongTimes = 0;
             for (var j:int = 0; j < totalQuestions; j++) {
                 var question:Question = questionGenerator.getNewQuestion();
                 allQuestions.push(question);
@@ -115,20 +128,19 @@
                     }
                     else {
                         showEvaluation();
+                        return;
                     }
                 }
                 else {
                     currentQuestionIndex++
                 }
             }
-
             populateViewWithQuestions(allQuestions[currentQuestionIndex]);
         }
 
         private function checkCurrentQuestionAnswer():void
         {
             var current:Question = allQuestions[currentQuestionIndex];
-            current.answer = getAnswerFromView();
             if (current.isCorrect) {
                 if (wrongAnswers.indexOf(current) != -1) {
                     wrongAnswers.splice(wrongAnswers.indexOf(current), 1);
@@ -149,7 +161,7 @@
 
         protected function stillWrong():void
         {
-            Alert.show("还是不对呀！")
+            Alert.show("还是不对...")
         }
 
         protected function getAnswerFromView():Object
@@ -166,11 +178,15 @@
 
         protected function submitAnswer_clickHandler(event:MouseEvent):void
         {
+            var current:Question = allQuestions[currentQuestionIndex];
+            current.answer = getAnswerFromView();
+            (answeredQuestions.indexOf(current) == -1) && answeredQuestions.push(current);
+            checkCurrentQuestionAnswer();
+
             if (answeredQuestions.length == allQuestions.length) {
                 if (wrongAnswers.length) {
                     if(isRedoing)
                     {
-                        checkCurrentQuestionAnswer();
                         goNext();
                     }
                     else
@@ -183,7 +199,6 @@
                 }
             }
             else {
-                checkCurrentQuestionAnswer();
                 goNext();
             }
         }
@@ -191,6 +206,7 @@
         private function showEvaluation():void
         {
             evaluationText = getEvaluationText();
+            scrore = Math.round(100 * (totalQuestions - wrongTimes) / totalQuestions);
             stack.selectedIndex = 2;
         }
 
@@ -203,7 +219,7 @@
         private function creationCompleteHandler(event:FlexEvent):void
         {
         }
-        
+
         ]]>
 	</fx:Script>
     <mx:Label text="{nameLabel}" fontSize="20" color="#57c8ff"/>
@@ -211,20 +227,20 @@
         <mx:Label text="{currentQuestionIndex}" fontSize="30"/>
         <mx:Label text="/" fontSize="40"/>
         <mx:Label text="{totalQuestions}" textAlign="left" fontSize="40" color="#57c8ff"/>
-        <mx:Spacer width="200"/>
+        <mx:Spacer width="100"/>
         <mx:Label text="还有 {numberWrong} 道题不正确，奔跑吧，少年！}" visible="{isRedoing}" color="red"/>
     </mx:HBox>
     <mx:ViewStack id="stack" width="100%" height="100%" visible="{isRunning}" includeInLayout="{isRunning}}">
         <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
             <mx:HBox>
                 <mx:Text id="questionBodyText" text="" fontSize="40" color="white"/>
-                <mx:TextInput id="input" fontSize="30" width="100" color="#52ff49"/>
+                <mx:TextInput id="input" fontSize="30" width="100" color="#000000"/>
             </mx:HBox>
-            <mx:Button label="下一题" enabled="{input.text}}" click="submitAnswer_clickHandler(event)" width="160"/>
+            <mx:Button label="提交答案" enabled="{input.text}}" click="submitAnswer_clickHandler(event)" width="160"/>
         </mx:VBox>
         <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
             <mx:Label text="{evaluationText}" fontSize="20"/>
-            <mx:Button label="修改错误答案" click="redoExam(event)" width="60"/>
+            <mx:Button label="修改错误答案" click="redoExam(event)" width="150"/>
         </mx:VBox>
         <mx:VBox width="100%" height="100%" horizontalAlign="center" verticalAlign="middle" verticalGap="50">
             <mx:Label text="{scrore}" fontSize="100"/>

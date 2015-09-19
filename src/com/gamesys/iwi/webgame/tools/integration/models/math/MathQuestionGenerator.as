@@ -18,52 +18,55 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 			var q:Question = new Question();
 
 
-			 var hasJiafa:Boolean = _config.hasJiafa;
-			 var hasJianfa:Boolean = _config.hasJianfa;
-			 var hunhe:Boolean = _config.hunhe;
-			 var hasXiaoshu:Boolean = _config.hasXiaoshu;
+			var hasJiafa:Boolean = _config.hasJiafa;
+			var hasJianfa:Boolean = _config.hasJianfa;
+			var hunhe:Boolean = _config.hunhe;
+			var hasXiaoshu:Boolean = _config.hasXiaoshu;
 //			 var hasFushu:Boolean = _config.hasFushu;
-			 var range:int = _config.range;
-			 var times:int = _config.times;
+			var range:int = _config.range;
+			var times:int = _config.times;
+			var finalRange:Number = range;
 
 			var calculation:Number;
 
 			for (var i:int = 0; i < times; i++) {
 
 				var isPositiveNumber:Boolean =
-						(isNaN(calculation) && hasJianfa && hunhe)?getRandomResult():true;
-				var number:Number = getRandomNumber(
-						isPositiveNumber,hasXiaoshu,range);
-				if(isNaN(calculation))
-				{
+						(!isNaN(calculation) && hasJianfa && hunhe) ? getRandomResult() : true;
+				if (!isNaN(calculation)) {
+					if (isPositiveNumber) {
+						finalRange = range - calculation;
+					}
+					else {
+						finalRange = calculation;
+					}
+				}
+				var number:Number = getRandomNumber(isPositiveNumber, hasXiaoshu, finalRange);
+				if (isNaN(calculation)) {
 					calculation = number;
 					q.bodyText = calculation + "";
 				}
-				else
-				{
+				else {
 					calculation += number;
-					if(number < 0)
-					{
-						range += number;
-					}
-					q.bodyText += getOperatorText(number) + number;
+					q.bodyText += getOperatorText(number) + Math.abs(number);
 				}
 
 			}
 
-			q.answer = calculation;
+			q.correctAnswer = calculation;
 			q.bodyText += " = ";
 
 			trace(q);
 			return q;
 		}
 
-		private function getRandomNumber(isPositive:Boolean,allowDecimal:Boolean,range:Number):Number
+		private function getRandomNumber(isPositive:Boolean, allowDecimal:Boolean, range:Number):Number
 		{
 			var number:Number = range * Math.random();
 			allowDecimal || (number = Math.round(number));
 			isPositive || (number *= -1);
-			
+			number == 0 && (number = 1);
+
 			return number;
 		}
 
@@ -74,7 +77,7 @@ package com.gamesys.iwi.webgame.tools.integration.models.math
 
 		private function getOperatorText(value:Number):String
 		{
-			return (value < 0)?" - ":" + ";
+			return (value < 0) ? " - " : " + ";
 		}
 	}
 }
